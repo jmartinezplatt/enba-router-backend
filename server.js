@@ -1,24 +1,27 @@
 import express from "express";
 
 const app = express();
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json());
 
 app.get("/health", (req, res) => {
-  res.status(200).send("ok");
+  res.send("ok");
 });
 
-app.post("/webhook/manychat", async (req, res) => {
-  // Por ahora solo eco para probar
-  const text =
-    req.body?.text ||
-    req.body?.message ||
-    req.body?.last_text ||
-    "mensaje sin texto";
+app.post("/webhook/manychat", (req, res) => {
+  const text = req.body.text || "";
+  const intent = req.body.intent || "";
 
-  return res.json({
-    reply: `Recibido: ${text}`
+  res.json({
+    version: "v2",
+    content: {
+      messages: [
+        {
+          type: "text",
+          text: `Recibido: ${text} | intent: ${intent}`
+        }
+      ]
+    }
   });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Listening on", PORT));
+app.listen(process.env.PORT || 3000);
